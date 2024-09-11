@@ -4,7 +4,7 @@ import { exec } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-
+import cors from "cors";
 const app = express();
 
 // finding absolute path
@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 
 // for accepting json format data
 app.use(express.json());
-
+app.use(cors());
 // api checker
 app.get("/", (req, res) => {
   res.json("api is working");
