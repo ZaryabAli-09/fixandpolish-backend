@@ -19,13 +19,7 @@ const allowedOrigins = [
 app.use(compression()); // Gzip compression
 app.use(helmet()); // Secure HTTP headers
 app.use(express.json());
-app.use(
-  cors({
-    origin: allowedOrigins,
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(cookieParser());
 
 // api checker
