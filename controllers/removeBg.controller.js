@@ -16,12 +16,18 @@ async function removeBg(req, res) {
     }
 
     // Define file paths for input and output
-    const filePath = path.resolve(__dirname, "../public/", req.file.filename);
+    const filePath = path.resolve(__dirname, "public", req.file.filename);
     const outputPath = path.resolve(
       __dirname,
-      "../public/",
+      "public",
       `quickbgremove_${req.file.filename}.png`
     );
+
+    // Verify the public directory exists, create if not
+    const publicDir = path.resolve(__dirname, "public");
+    if (!fs.existsSync(publicDir)) {
+      fs.mkdirSync(publicDir, { recursive: true });
+    }
 
     // Verify the uploaded file exists
     if (!fs.existsSync(filePath)) {
@@ -57,7 +63,7 @@ async function removeBg(req, res) {
     fs.unlinkSync(filePath);
     fs.unlinkSync(outputPath);
     return res
-      .status(501)
+      .status(500)
       .send("Error occur while proccesing image please try again");
   }
 }
