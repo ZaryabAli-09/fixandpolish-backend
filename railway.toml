@@ -1,4 +1,15 @@
-  command = "docker build -t my-app ."
+# railway.toml
+
+[build]
+  # Command to run before starting the app
+  # This is used to build your app if necessary
+  command = "npm install && pip install -r requirements.txt"
 
 [deploy]
-  command = "docker run -p 4000:4000 my-app"
+  # The command to run your app. Adjust this according to how your app is started
+  start = "node index.js"
+
+# This section is to specify the ports your app listens on
+[service]
+  # The port that your service will bind to. Adjust if needed.
+  port = 4000
