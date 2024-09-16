@@ -54,8 +54,8 @@ async function removeBg(req, res) {
             message: "Error occurred while sending image back to you",
           });
         } else {
-          fs.unlinkSync(filePath);
-          fs.unlinkSync(outputPath);
+          // fs.unlinkSync(filePath);
+          // fs.unlinkSync(outputPath);
         }
       });
     });
