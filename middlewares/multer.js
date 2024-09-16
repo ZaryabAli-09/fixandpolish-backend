@@ -1,8 +1,8 @@
 import multer from "multer";
-import os from "os";
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, os.tmpdir());
+    cb(null, "public/");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

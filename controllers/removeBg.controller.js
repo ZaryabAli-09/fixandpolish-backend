@@ -2,75 +2,68 @@ import { exec } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import os from "os";
 
-// finding absolute path
+// Finding absolute path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function removeBg(req, res) {
   try {
     if (!req.file) {
-      return res.status(404).json({
-        message: "Error occur while uploading file to server",
+      return res.status(400).json({
+        message: "No file uploaded",
       });
     }
 
-    // // Define file paths for input and output
-    // const filePath = path.resolve(__dirname, "../public/", req.file.filename);
-    // const outputPath = path.resolve(
-    //   __dirname,
-    //   "../public/",
-    //   `quickbgremove_${req.file.filename}.png`
-    // );
-    // Define file paths for input and output
-    const tempDir = os.tmpdir();
-    const filePath = path.resolve(tempDir, req.file.filename);
+    const filePath = path.resolve(__dirname, "../public/", req.file.filename);
     const outputPath = path.resolve(
-      tempDir,
+      __dirname,
+      "../public/",
       `quickbgremove_${req.file.filename}.png`
     );
-    // Verify the uploaded file exists
+
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({
         message: "Uploaded file not found",
       });
     }
 
-    // Command to run the Python script with proper path quoting
-    const command = `python "remove_background.py" "${filePath}" "${outputPath}"`;
+    const pythonScriptPath = path.resolve(__dirname, "../remove_background.py");
 
-    // Execute the Python command
+    const command = `python "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
+
     exec(command, (error, stdout, stderr) => {
-      console.log("p runs");
       if (error) {
-        return res.status(500).send("Error occur while processing image");
+        console.error(`Error executing script: ${error.message}`);
+        console.error(`stderr: ${stderr}`);
+        return res
+          .status(500)
+          .json({ message: "Error occurred while processing image" });
       }
 
-      // Check if the output file exists before sending it back
+      console.log(`stdout: ${stdout}`);
+
       if (!fs.existsSync(outputPath)) {
-        return res.status(404).send("Output file not found");
+        console.log("Output file not found");
+        return res.status(404).json({ message: "Output file not found" });
       }
 
-      console.log(`file saved to :${filePath}`);
-      console.log(`file saved to :${outputPath}`);
-      // Send the processed file as a response
       res.sendFile(outputPath, (err) => {
         if (err) {
-          res.status(404).send("Error occur while sending image back to you:");
+          res.status(500).json({
+            message: "Error occurred while sending image back to you",
+          });
         } else {
-          // Optionally delete the file after sending
           fs.unlinkSync(filePath);
           fs.unlinkSync(outputPath);
         }
       });
     });
   } catch (error) {
-    fs.unlinkSync(filePath);
-    fs.unlinkSync(outputPath);
-    return res
-      .status(500)
-      .send("Error occur while proccesing image please try again");
+    // when we catch error the file will be remain in public folder   .... bug
+    return res.status(500).json({
+      message: "Error occurred while processing image, please try again",
+    });
   }
 }
 

@@ -9,12 +9,6 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-// specifying client origins
-// const allowedOrigins = [
-//   "https://quickbgremove.netlify.app",
-//   "http://localhost:5173",
-// ];
-
 // built in middlewares
 app.use(compression()); // Gzip compression
 app.use(helmet()); // Secure HTTP headers
