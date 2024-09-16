@@ -1,0 +1,4 @@
+  command = "docker build -t my-app ."
+
+[deploy]
+  command = "docker run -p 3000:3000 my-app"
