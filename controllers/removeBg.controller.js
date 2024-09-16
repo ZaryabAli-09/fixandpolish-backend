@@ -2,6 +2,7 @@ import { exec } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import os from "os";
 
 // finding absolute path
 const __filename = fileURLToPath(import.meta.url);
@@ -15,14 +16,20 @@ async function removeBg(req, res) {
       });
     }
 
+    // // Define file paths for input and output
+    // const filePath = path.resolve(__dirname, "../public/", req.file.filename);
+    // const outputPath = path.resolve(
+    //   __dirname,
+    //   "../public/",
+    //   `quickbgremove_${req.file.filename}.png`
+    // );
     // Define file paths for input and output
-    const filePath = path.resolve(__dirname, "../public/", req.file.filename);
+    const tempDir = os.tmpdir();
+    const filePath = path.resolve(tempDir, req.file.filename);
     const outputPath = path.resolve(
-      __dirname,
-      "../public/",
+      tempDir,
       `quickbgremove_${req.file.filename}.png`
     );
-
     // Verify the uploaded file exists
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({
@@ -39,12 +46,14 @@ async function removeBg(req, res) {
       if (error) {
         return res.status(500).send("Error occur while processing image");
       }
-      console.log("stderr", stderr);
-      console.log("stdout", stdout);
+
       // Check if the output file exists before sending it back
       if (!fs.existsSync(outputPath)) {
         return res.status(404).send("Output file not found");
       }
+
+      console.log(`file saved to :${filePath}`);
+      console.log(`file saved to :${outputPath}`);
       // Send the processed file as a response
       res.sendFile(outputPath, (err) => {
         if (err) {
