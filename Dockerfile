@@ -1,23 +1,31 @@
-# Use a base image that includes Node.js
+# Use an official Node.js image as the base image for your app
 FROM node:18
 
-# Set the working directory inside the container
+# Set the working directory inside the Docker container
 WORKDIR /app
 
-# Copy the current directory contents into the container
-COPY . .
-
-# Install Python and pip3
-RUN apt-get update && apt-get install -y python3 python3-pip
-
-# Install Python dependencies
-RUN pip3 install -r requirements.txt
+# Copy package.json and package-lock.json to the working directory
+COPY package*.json ./
 
 # Install Node.js dependencies
 RUN npm install
 
-# Expose the port your app runs on
+# Install Python and pip3
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Copy the rest of your project files to the working directory
+COPY . .
+
+# Debug: List files and check Python and pip versions
+RUN ls -al /app
+RUN python3 --version
+RUN pip3 --version
+
+# Install Python dependencies
+RUN pip3 install -r requirements.txt
+
+# Expose the port that your application will run on (default to 4000)
 EXPOSE 4000
 
-# Command to start your app
+# Set the command to run your app
 CMD ["node", "index.js"]
