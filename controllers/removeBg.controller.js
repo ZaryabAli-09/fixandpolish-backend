@@ -2,7 +2,6 @@ import { exec } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-// import "";
 
 // finding absolute path
 const __filename = fileURLToPath(import.meta.url);
@@ -35,10 +34,13 @@ async function removeBg(req, res) {
     const command = `python "remove_background.py" "${filePath}" "${outputPath}"`;
 
     // Execute the Python command
-    exec(command, (error) => {
+    exec(command, (error, stdout, stderr) => {
+      console.log("p runs");
       if (error) {
         return res.status(500).send("Error occur while processing image");
       }
+      console.log("stderr", stderr);
+      console.log("stdout", stdout);
       // Check if the output file exists before sending it back
       if (!fs.existsSync(outputPath)) {
         return res.status(404).send("Output file not found");
