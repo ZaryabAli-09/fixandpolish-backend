@@ -1,27 +1,41 @@
-# Use an official Node.js image as the base image
-FROM node:18
+# Stage 1: Build Node.js application
+FROM node:18 AS node-build
 
-# Set the working directory inside the Docker container
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
-
-# Install Node.js dependencies
 RUN npm install
 
-# Install Python and pip
-RUN apt-get update && \
-    apt-get install -y python3 python3-pip
-
-# Copy the rest of your project files to the working directory
 COPY . .
 
-# Install Python dependencies
-RUN pip3 install -r requirements.txt
+# Stage 2: Build Python environment
+FROM python:3.11-slim AS python-build
 
-# Expose the port that your application will run on
+WORKDIR /app
+
+# Copy the Node.js app from the previous stage
+COPY --from=node-build /app /app
+
+# Install Python dependencies
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Stage 3: Final stage
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Copy the Node.js and Python environment from previous stages
+COPY --from=node-build /app /app
+COPY --from=python-build /app /app
+
+# Install any additional dependencies if needed
+# For example, you might need to install system dependencies
+RUN apt-get update && \
+    apt-get install -y build-essential
+
+# Expose the port your app will run on
 EXPOSE 4000
 
-# Set the command to run your app
+# Command to run your app
 CMD ["node", "index.js"]
