@@ -10,15 +10,15 @@ COPY package*.json ./
 # Install Node.js dependencies
 RUN npm install
 
-# Install Python and pip3
+# Install Python and pip
 RUN apt-get update && \
-    apt-get install -y python3 python3-pip
+    apt-get install -y python python-pip
 
 # Copy the rest of your project files to the working directory
 COPY . .
 
 # Install Python dependencies
-RUN pip3 install -r requirements.txt
+RUN pip install -r requirements.txt
 
 # Expose the port that your application will run on
 EXPOSE 4000
