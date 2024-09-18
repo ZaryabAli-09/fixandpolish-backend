@@ -30,7 +30,7 @@ async function removeBg(req, res) {
 
     const pythonScriptPath = path.resolve(__dirname, "../remove_background.py");
 
-    const command = `python "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
+    const command = `python3 "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
