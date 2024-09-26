@@ -6,6 +6,7 @@ import compression from "compression";
 import helmet from "helmet";
 import authRoutes from "./routes/auth.routes.js";
 import { dbConnection } from "./db/db.js";
+import { errorMiddleware } from "./middlewares/error.js";
 
 dotenv.config();
 const app = express();
@@ -16,6 +17,9 @@ app.use(compression()); // Gzip compression
 app.use(helmet()); // Secure HTTP headers
 app.use(express.json());
 app.use(cors());
+
+// middlewares
+app.use(errorMiddleware);
 
 // api checker
 app.get("/", (req, res) => {

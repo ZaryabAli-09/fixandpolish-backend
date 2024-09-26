@@ -3,7 +3,7 @@ import {
   userRegister,
   userContactUs,
   userLogin,
-} from "../controllers/user.controller.js";
+} from "../controllers/auth.controller.js";
 const router = express.Router();
 
 router.post("/contact-us", userContactUs);

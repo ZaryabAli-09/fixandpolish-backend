@@ -2,12 +2,13 @@ import { exec } from "child_process";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
+import sharp from "sharp";
 
 // Finding absolute path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function removeBg(req, res) {
+async function removeBg(req, res, next) {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -30,7 +31,7 @@ async function removeBg(req, res) {
 
     const pythonScriptPath = path.resolve(__dirname, "../remove_background.py");
 
-    const command = `python3 "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
+    const command = `python "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -61,10 +62,49 @@ async function removeBg(req, res) {
     });
   } catch (error) {
     // when we catch error the file will be remain in public folder   .... bug
-    return res.status(500).json({
-      message: "Error occurred while processing image, please try again",
-    });
+    return next(error);
   }
 }
 
-export { removeBg };
+// bug to solve when we give resize image it return error and also gives correct output and files are not deleted
+async function resizeImg(req, res, next) {
+  try {
+    let { width, height } = req.body;
+    if (!req.file || !width || !height) {
+      return res.status(400).json({
+        message: "Parameters missing",
+      });
+    }
+    // converting strings to integers
+    width = parseInt(width);
+    height = parseInt(height);
+
+    const filePath = path.resolve(__dirname, "../public/", req.file.filename);
+    const outputFilePath = path.resolve(
+      __dirname,
+      "../public/",
+      `quickResize_${req.file.filename}.png`
+    );
+
+    // resize the image
+    await sharp(filePath)
+      .resize(width, height, { fit: "cover", position: "center" })
+      .toFormat("jpeg", { quality: 90 }) // Set quality level (for lossy formats like JPEG)
+      .toFile(outputFilePath);
+
+    res.download(outputFilePath, (err) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Error downloading resized image" });
+      }
+      // Optionally delete the original and resized images after download
+      fs.unlinkSync(filePath);
+      fs.unlinkSync(outputFilePath);
+    });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export { removeBg, resizeImg };
