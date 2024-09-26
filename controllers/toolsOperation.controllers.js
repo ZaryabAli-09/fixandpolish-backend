@@ -4,6 +4,8 @@ import { fileURLToPath } from "url";
 import fs from "fs";
 import sharp from "sharp";
 
+// add python3 instead of python before pushing to github
+
 // Finding absolute path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +33,7 @@ async function removeBg(req, res, next) {
 
     const pythonScriptPath = path.resolve(__dirname, "../remove_background.py");
 
-    const command = `python "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
+    const command = `python3 "${pythonScriptPath}" "${filePath}" "${outputPath}"`;
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -66,7 +68,6 @@ async function removeBg(req, res, next) {
   }
 }
 
-// bug to solve when we give resize image it return error and also gives correct output and files are not deleted
 async function resizeImg(req, res, next) {
   try {
     let { width, height } = req.body;
@@ -83,7 +84,7 @@ async function resizeImg(req, res, next) {
     const outputFilePath = path.resolve(
       __dirname,
       "../public/",
-      `quickResize_${req.file.filename}.png`
+      `quickResize_${Date.now()}.png`
     );
 
     // resize the image
